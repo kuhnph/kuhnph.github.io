@@ -34,14 +34,15 @@ body {
 }
 
 .profile-photo {
-  width: 400px;
-  margin: 0 auto 2rem auto;
+	width: 100%;
+	max-width: 25rem;
+	margin: 0 auto 2rem;
 }
 
 .profile-photo img {
-  width: 100%;
-  height: auto;
-  display: block;
+	display: block;
+	width: 100%;
+	height: auto;
 }
 
 ol, ul {
@@ -2605,7 +2606,8 @@ input, select, textarea {
 		position: relative;
 	}
 
-		.image img {
+		.image img,
+		.image video {
 			display: block;
 		}
 
@@ -2639,7 +2641,8 @@ input, select, textarea {
 				margin-top: 0;
 			}
 
-			.image.fit img {
+			.image.fit img,
+			.image.fit video {
 				width: 100%;
 			}
 
