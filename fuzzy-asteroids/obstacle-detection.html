@@ -1,0 +1,457 @@
+<!DOCTYPE HTML>
+<!-- Massively by HTML5 UP | html5up.net | @ajlkn | CCA 3.0 -->
+<html lang="en">
+	<head>
+		<title>Velocity-Based Obstacle Detection | Philip Kuhn</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="description" content="A geometric derivation of
+velocity-based obstacle detection for fuzzy-logic asteroid
+navigation." />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+		<style>
+			.derivation { text-align: left; }
+			.derivation header.major { text-align: center; }
+			.derivation h2 { margin-top: 2.75rem; scroll-margin-top: 1rem; }
+			.derivation h3 { margin-top: 2rem; scroll-margin-top: 1rem; }
+			.derivation table { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+			.derivation .math.display { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 0.5rem 0; }
+			.derivation pre { max-width: 100%; overflow-x: auto; }
+			.article-toc { margin: 2rem 0 3rem; padding: 1.25rem 1.5rem; border: solid 2px #eeeeee; }
+			.article-toc summary { cursor: pointer; font-family: "Source Sans Pro", Helvetica, sans-serif; font-size: 0.9rem; font-weight: 900; letter-spacing: 0.075em; text-transform: uppercase; }
+			.article-toc ul { columns: 2; column-gap: 3rem; margin: 1.25rem 0 0; }
+			.article-toc li { break-inside: avoid; padding: 0.2rem 0; }
+			.article-toc a { border-bottom: 0; }
+			.article-footer { margin-top: 4rem; padding-top: 2rem; border-top: solid 2px #eeeeee; text-align: center; }
+			@media screen and (max-width: 736px) {
+				.article-toc ul { columns: 1; }
+				.derivation table { font-size: 0.8rem; }
+			}
+		</style>
+		<script>
+			window.MathJax = {
+				tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+				options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+			};
+		</script>
+		<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			<header id="header"><a href="../index.html" class="logo">Philip Kuhn</a></header>
+			<nav id="nav">
+				<ul class="links">
+					<li><a href="../index.html">About Me</a></li>
+					<li class="active"><a href="../projects.html">Projects</a></li>
+				</ul>
+			</nav>
+			<div id="main">
+				<section class="post derivation">
+					<header class="major">
+						<h1>Velocity-Based Obstacle Detection</h1>
+						<p>Geometry for detecting when an asteroid intersects the spacecraft’s
+current path.</p>
+					</header>
+					<details class="article-toc" open>
+						<summary>Contents</summary>
+<ul>
+<li><a href="#step-1-compute-peachs-velocity"
+id="toc-step-1-compute-peachs-velocity">Step 1: Compute Peach’s
+Velocity</a>
+<ul>
+<li><a href="#mathematics" id="toc-mathematics">Mathematics</a></li>
+<li><a href="#geometric-meaning" id="toc-geometric-meaning">Geometric
+Meaning</a></li>
+</ul></li>
+<li><a href="#step-2-normalize-the-velocity"
+id="toc-step-2-normalize-the-velocity">Step 2: Normalize the
+Velocity</a>
+<ul>
+<li><a href="#mathematics-1" id="toc-mathematics-1">Mathematics</a></li>
+<li><a href="#geometric-meaning-1"
+id="toc-geometric-meaning-1">Geometric Meaning</a></li>
+</ul></li>
+<li><a href="#step-3-project-the-asteroid-onto-peachs-path"
+id="toc-step-3-project-the-asteroid-onto-peachs-path">Step 3: Project
+the Asteroid onto Peach’s Path</a>
+<ul>
+<li><a href="#mathematics-2" id="toc-mathematics-2">Mathematics</a></li>
+<li><a href="#geometric-meaning-2"
+id="toc-geometric-meaning-2">Geometric Meaning</a></li>
+</ul></li>
+<li><a href="#step-4-find-the-closest-point-on-peachs-path"
+id="toc-step-4-find-the-closest-point-on-peachs-path">Step 4: Find the
+Closest Point on Peach’s Path</a>
+<ul>
+<li><a href="#mathematics-3" id="toc-mathematics-3">Mathematics</a></li>
+<li><a href="#geometric-meaning-3"
+id="toc-geometric-meaning-3">Geometric Meaning</a></li>
+</ul></li>
+<li><a href="#step-5-compute-the-cross-track-distance"
+id="toc-step-5-compute-the-cross-track-distance">Step 5: Compute the
+Cross-Track Distance</a>
+<ul>
+<li><a href="#mathematics-4" id="toc-mathematics-4">Mathematics</a></li>
+<li><a href="#geometric-meaning-4"
+id="toc-geometric-meaning-4">Geometric Meaning</a></li>
+</ul></li>
+<li><a href="#step-6-determine-whether-the-asteroid-blocks-the-path"
+id="toc-step-6-determine-whether-the-asteroid-blocks-the-path">Step 6:
+Determine Whether the Asteroid Blocks the Path</a>
+<ul>
+<li><a href="#mathematics-5" id="toc-mathematics-5">Mathematics</a></li>
+<li><a href="#geometric-meaning-5"
+id="toc-geometric-meaning-5">Geometric Meaning</a></li>
+</ul></li>
+<li><a href="#summary-diagram" id="toc-summary-diagram">Summary
+Diagram</a></li>
+</ul>
+					</details>
+<p>The purpose of this calculation is to answer the question:</p>
+<blockquote>
+<p><strong>“Will Peach’s current direction of travel intersect the
+asteroid’s safety region?”</strong></p>
+</blockquote>
+<p>Rather than simply asking whether the asteroid is close, this method
+determines whether the asteroid actually lies <strong>on Peach’s current
+trajectory</strong>.</p>
+<hr />
+<section id="step-1-compute-peachs-velocity" class="level1">
+<h1>Step 1: Compute Peach’s Velocity</h1>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>peach_velocity <span class="op">=</span> Vector2(peach[<span class="st">&quot;velocity&quot;</span>])</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>peach_speed <span class="op">=</span> peach_velocity.length()</span></code></pre></div>
+<section id="mathematics" class="level2">
+<h2>Mathematics</h2>
+<p>Peach’s velocity is</p>
+<p><span class="math display">\[
+\mathbf{v} =
+\begin{bmatrix}
+v_x \\
+v_y
+\end{bmatrix}
+\]</span></p>
+<p>The magnitude of the velocity is</p>
+<p><span class="math display">\[
+|\mathbf{v}| = \sqrt{v_x^2 + v_y^2}
+\]</span></p>
+</section>
+<section id="geometric-meaning" class="level2">
+<h2>Geometric Meaning</h2>
+<p>This tells us two things:</p>
+<ul>
+<li>The <strong>direction</strong> Peach is moving.</li>
+<li>The <strong>speed</strong> Peach is moving.</li>
+</ul>
+<pre class="text"><code>           ↑ vy
+
+           |
+           |
+Peach •----&gt;
+        vx</code></pre>
+<hr />
+</section>
+</section>
+<section id="step-2-normalize-the-velocity" class="level1">
+<h1>Step 2: Normalize the Velocity</h1>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> peach_speed <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    velocity_direction <span class="op">=</span> peach_velocity.normalize()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    velocity_direction <span class="op">=</span> target_direction</span></code></pre></div>
+<section id="mathematics-1" class="level2">
+<h2>Mathematics</h2>
+<p>Normalization removes the magnitude:</p>
+<p><span class="math display">\[
+\hat{\mathbf v}
+=
+\frac{\mathbf v}{|\mathbf v|}
+\]</span></p>
+<p>After normalization,</p>
+<p><span class="math display">\[
+|\hat{\mathbf v}| = 1
+\]</span></p>
+</section>
+<section id="geometric-meaning-1" class="level2">
+<h2>Geometric Meaning</h2>
+<p>Instead of saying</p>
+<blockquote>
+<p>“Peach is moving 2.4 pixels/frame”</p>
+</blockquote>
+<p>we now say</p>
+<blockquote>
+<p>“Peach is moving <strong>in this direction</strong>.”</p>
+</blockquote>
+<pre class="text"><code>Peach •────────────►
+        unit vector</code></pre>
+<p>This unit vector defines Peach’s current path.</p>
+<hr />
+</section>
+</section>
+<section id="step-3-project-the-asteroid-onto-peachs-path"
+class="level1">
+<h1>Step 3: Project the Asteroid onto Peach’s Path</h1>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>asteroid_along_velocity <span class="op">=</span> to_asteroid.dot(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    velocity_direction</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<section id="mathematics-2" class="level2">
+<h2>Mathematics</h2>
+<p>The dot product is</p>
+<p><span class="math display">\[
+\mathbf a \cdot \hat{\mathbf v}
+=
+|\mathbf a|
+\cos\theta
+\]</span></p>
+<p>where</p>
+<ul>
+<li><span class="math inline">\(\mathbf a\)</span> = vector from Peach
+to asteroid</li>
+<li><span class="math inline">\(\theta\)</span> = angle between Peach’s
+velocity and the asteroid.</li>
+</ul>
+<p>Because</p>
+<p><span class="math display">\[
+|\hat{\mathbf v}| = 1,
+\]</span></p>
+<p>the result simplifies to</p>
+<p><span class="math display">\[
+\mathbf a \cdot \hat{\mathbf v}
+=
+|\mathbf a|\cos\theta
+\]</span></p>
+<p>which is exactly the <strong>projection</strong> of the asteroid onto
+Peach’s direction of travel.</p>
+</section>
+<section id="geometric-meaning-2" class="level2">
+<h2>Geometric Meaning</h2>
+<p>Imagine shining a flashlight straight ahead.</p>
+<p>The asteroid casts a shadow onto Peach’s path.</p>
+<pre class="text"><code>                   Asteroid
+                      •
+
+Peach •----------------X-------------&gt;</code></pre>
+<p>The distance</p>
+<pre class="text"><code>Peach → X</code></pre>
+<p>is</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>asteroid_along_velocity</span></code></pre></div>
+<section id="interpretation" class="level3">
+<h3>Interpretation</h3>
+<p>If</p>
+<p><span class="math display">\[
+\texttt{asteroid\_along\_velocity} &gt; 0
+\]</span></p>
+<p>the asteroid lies somewhere ahead.</p>
+<p>If</p>
+<p><span class="math display">\[
+\texttt{asteroid\_along\_velocity} &lt; 0
+\]</span></p>
+<p>the asteroid lies behind Peach.</p>
+<hr />
+</section>
+</section>
+</section>
+<section id="step-4-find-the-closest-point-on-peachs-path"
+class="level1">
+<h1>Step 4: Find the Closest Point on Peach’s Path</h1>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>closest_point <span class="op">=</span> (</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    peach_position</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> velocity_direction <span class="op">*</span> asteroid_along_velocity</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<section id="mathematics-3" class="level2">
+<h2>Mathematics</h2>
+<p>A point along a line can be written as</p>
+<p><span class="math display">\[
+P
+=
+P_0
++
+d\hat{\mathbf v}
+\]</span></p>
+<p>where</p>
+<ul>
+<li><span class="math inline">\(P_0\)</span> = Peach’s position</li>
+<li><span class="math inline">\(d\)</span> = projected distance</li>
+<li><span class="math inline">\(\hat{\mathbf v}\)</span> = unit velocity
+vector</li>
+</ul>
+</section>
+<section id="geometric-meaning-3" class="level2">
+<h2>Geometric Meaning</h2>
+<p>This reconstructs the point on Peach’s future path that is closest to
+the asteroid.</p>
+<pre class="text"><code>                 Asteroid
+                     •
+
+Peach •-------------X--------------&gt;</code></pre>
+<p>The point <strong>X</strong> is the closest point on Peach’s motion
+path.</p>
+<hr />
+</section>
+</section>
+<section id="step-5-compute-the-cross-track-distance" class="level1">
+<h1>Step 5: Compute the Cross-Track Distance</h1>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cross_track_distance <span class="op">=</span> (</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    asteroid_position <span class="op">-</span> closest_point</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>).length()</span></code></pre></div>
+<section id="mathematics-4" class="level2">
+<h2>Mathematics</h2>
+<p>This computes</p>
+<p><span class="math display">\[
+|\mathbf r|
+=
+\sqrt{x^2+y^2}
+\]</span></p>
+<p>between</p>
+<ul>
+<li>the asteroid</li>
+<li>the closest point on the path.</li>
+</ul>
+</section>
+<section id="geometric-meaning-4" class="level2">
+<h2>Geometric Meaning</h2>
+<p>This is the shortest distance from the asteroid to Peach’s current
+trajectory.</p>
+<pre class="text"><code>                 Asteroid
+                     •
+
+                     |
+                     |
+                     |
+
+Peach •-------------X--------------&gt;</code></pre>
+<p>This vertical distance is</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>cross_track_distance</span></code></pre></div>
+<p>Notice that this is <strong>not</strong> the distance to Peach.</p>
+<p>It is the distance to Peach’s <strong>future path</strong>.</p>
+<hr />
+</section>
+</section>
+<section id="step-6-determine-whether-the-asteroid-blocks-the-path"
+class="level1">
+<h1>Step 6: Determine Whether the Asteroid Blocks the Path</h1>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>asteroid_on_velocity_path <span class="op">=</span> (</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    asteroid_along_velocity <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">and</span> cross_track_distance <span class="op">&lt;</span> effective_radius</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<section id="mathematics-5" class="level2">
+<h2>Mathematics</h2>
+<p>Two conditions must both be true.</p>
+<section id="is-the-asteroid-in-front" class="level3">
+<h3>1. Is the asteroid in front?</h3>
+<p><span class="math display">\[
+\texttt{asteroid\_along\_velocity} &gt; 0
+\]</span></p>
+</section>
+<section id="does-peachs-path-intersect-the-asteroids-safety-circle"
+class="level3">
+<h3>2. Does Peach’s path intersect the asteroid’s safety circle?</h3>
+<p><span class="math display">\[
+\texttt{cross\_track\_distance}
+&lt;
+\texttt{effective\_radius}
+\]</span></p>
+<hr />
+</section>
+</section>
+<section id="geometric-meaning-5" class="level2">
+<h2>Geometric Meaning</h2>
+<p>Imagine expanding the asteroid by Peach’s radius plus a safety
+margin.</p>
+<pre class="text"><code>          ***********
+       ***           ***
+      **      •        **
+       ***           ***
+          ***********</code></pre>
+<p>Now extend Peach’s velocity vector.</p>
+<section id="collision" class="level3">
+<h3>Collision</h3>
+<pre class="text"><code>***************
+      •
+***************
+
+Peach ------------------&gt;</code></pre>
+<p>The path intersects the safety region.</p>
+<p>Result:</p>
+<pre class="text"><code>True</code></pre>
+</section>
+<section id="no-collision" class="level3">
+<h3>No Collision</h3>
+<pre class="text"><code>***************
+      •
+***************
+
+
+Peach ------------------------------&gt;</code></pre>
+<p>The path misses the safety region.</p>
+<p>Result:</p>
+<pre class="text"><code>False</code></pre>
+<hr />
+</section>
+</section>
+</section>
+<section id="summary-diagram" class="level1">
+<h1>Summary Diagram</h1>
+<pre class="text"><code>                     Asteroid
+                         •
+
+                         |
+                         | cross_track_distance
+                         |
+
+Peach •------------------X--------------------------&gt;
+         velocity direction
+
+       asteroid_along_velocity</code></pre>
+<p>The vector from Peach to the asteroid is decomposed into two
+components.</p>
+<section id="parallel-component" class="level3">
+<h3>Parallel Component</h3>
+<p><code>asteroid_along_velocity</code></p>
+<p>Measures <strong>how far ahead</strong> the asteroid is along Peach’s
+direction of travel.</p>
+</section>
+<section id="perpendicular-component" class="level3">
+<h3>Perpendicular Component</h3>
+<p><code>cross_track_distance</code></p>
+<p>Measures <strong>how far away</strong> the asteroid is from Peach’s
+current path.</p>
+<p>Together these answer the question:</p>
+<blockquote>
+<p><strong>“If Peach continues moving in its current direction, will it
+pass through the asteroid’s safety region?”</strong></p>
+</blockquote>
+<p>This decomposition appears throughout robotics, autonomous
+navigation, missile guidance, and path planning because it separates an
+obstacle’s position into:</p>
+<ul>
+<li><strong>Progress along the path</strong></li>
+<li><strong>Deviation from the path</strong></li>
+</ul>
+<p>These quantities are often much more useful than simply knowing the
+obstacle’s distance and bearing.</p>
+</section>
+</section>
+					<footer class="article-footer">
+						<ul class="actions special"><li><a href="../projects.html" class="button">Back to Projects</a></li></ul>
+					</footer>
+				</section>
+			</div>
+			<div id="copyright"><ul><li>&copy; 2026 Philip Kuhn</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul></div>
+		</div>
+		<script src="../assets/js/jquery.min.js"></script>
+		<script src="../assets/js/jquery.scrollex.min.js"></script>
+		<script src="../assets/js/jquery.scrolly.min.js"></script>
+		<script src="../assets/js/browser.min.js"></script>
+		<script src="../assets/js/breakpoints.min.js"></script>
+		<script src="../assets/js/util.js"></script>
+		<script src="../assets/js/main.js"></script>
+	</body>
+</html>
