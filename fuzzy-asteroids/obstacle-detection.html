@@ -53,72 +53,14 @@ navigation." />
 						<p>Geometry for detecting when an asteroid intersects the spacecraft’s
 current path.</p>
 					</header>
-					<details class="article-toc" open>
-						<summary>Contents</summary>
-<ul>
-<li><a href="#step-1-compute-peachs-velocity"
-id="toc-step-1-compute-peachs-velocity">Step 1: Compute Peach’s
-Velocity</a>
-<ul>
-<li><a href="#mathematics" id="toc-mathematics">Mathematics</a></li>
-<li><a href="#geometric-meaning" id="toc-geometric-meaning">Geometric
-Meaning</a></li>
-</ul></li>
-<li><a href="#step-2-normalize-the-velocity"
-id="toc-step-2-normalize-the-velocity">Step 2: Normalize the
-Velocity</a>
-<ul>
-<li><a href="#mathematics-1" id="toc-mathematics-1">Mathematics</a></li>
-<li><a href="#geometric-meaning-1"
-id="toc-geometric-meaning-1">Geometric Meaning</a></li>
-</ul></li>
-<li><a href="#step-3-project-the-asteroid-onto-peachs-path"
-id="toc-step-3-project-the-asteroid-onto-peachs-path">Step 3: Project
-the Asteroid onto Peach’s Path</a>
-<ul>
-<li><a href="#mathematics-2" id="toc-mathematics-2">Mathematics</a></li>
-<li><a href="#geometric-meaning-2"
-id="toc-geometric-meaning-2">Geometric Meaning</a></li>
-</ul></li>
-<li><a href="#step-4-find-the-closest-point-on-peachs-path"
-id="toc-step-4-find-the-closest-point-on-peachs-path">Step 4: Find the
-Closest Point on Peach’s Path</a>
-<ul>
-<li><a href="#mathematics-3" id="toc-mathematics-3">Mathematics</a></li>
-<li><a href="#geometric-meaning-3"
-id="toc-geometric-meaning-3">Geometric Meaning</a></li>
-</ul></li>
-<li><a href="#step-5-compute-the-cross-track-distance"
-id="toc-step-5-compute-the-cross-track-distance">Step 5: Compute the
-Cross-Track Distance</a>
-<ul>
-<li><a href="#mathematics-4" id="toc-mathematics-4">Mathematics</a></li>
-<li><a href="#geometric-meaning-4"
-id="toc-geometric-meaning-4">Geometric Meaning</a></li>
-</ul></li>
-<li><a href="#step-6-determine-whether-the-asteroid-blocks-the-path"
-id="toc-step-6-determine-whether-the-asteroid-blocks-the-path">Step 6:
-Determine Whether the Asteroid Blocks the Path</a>
-<ul>
-<li><a href="#mathematics-5" id="toc-mathematics-5">Mathematics</a></li>
-<li><a href="#geometric-meaning-5"
-id="toc-geometric-meaning-5">Geometric Meaning</a></li>
-</ul></li>
-<li><a href="#summary-diagram" id="toc-summary-diagram">Summary
-Diagram</a></li>
-</ul>
-					</details>
 <p>The purpose of this calculation is to answer the question:</p>
 <blockquote>
 <p><strong>“Will Peach’s current direction of travel intersect the
 asteroid’s safety region?”</strong></p>
 </blockquote>
-<p>Rather than simply asking whether the asteroid is close, this method
-determines whether the asteroid actually lies <strong>on Peach’s current
-trajectory</strong>.</p>
 <hr />
 <section id="step-1-compute-peachs-velocity" class="level1">
-<h1>Step 1: Compute Peach’s Velocity</h1>
+<h1>1. Compute Peach’s Velocity</h1>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>peach_velocity <span class="op">=</span> Vector2(peach[<span class="st">&quot;velocity&quot;</span>])</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>peach_speed <span class="op">=</span> peach_velocity.length()</span></code></pre></div>
@@ -154,7 +96,7 @@ Peach •----&gt;
 </section>
 </section>
 <section id="step-2-normalize-the-velocity" class="level1">
-<h1>Step 2: Normalize the Velocity</h1>
+<h1>2. Normalize the Velocity</h1>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> peach_speed <span class="op">&gt;</span> <span class="dv">0</span>:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    velocity_direction <span class="op">=</span> peach_velocity.normalize()</span>
@@ -191,7 +133,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 </section>
 <section id="step-3-project-the-asteroid-onto-peachs-path"
 class="level1">
-<h1>Step 3: Project the Asteroid onto Peach’s Path</h1>
+<h1>3. Project the Asteroid onto Peach’s Path</h1>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>asteroid_along_velocity <span class="op">=</span> to_asteroid.dot(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    velocity_direction</span>
@@ -227,8 +169,7 @@ Peach’s direction of travel.</p>
 </section>
 <section id="geometric-meaning-2" class="level2">
 <h2>Geometric Meaning</h2>
-<p>Imagine shining a flashlight straight ahead.</p>
-<p>The asteroid casts a shadow onto Peach’s path.</p>
+<p>The asteroid casts a shadow onto Peach’s path if it is in the direction peach is facing</p>
 <pre class="text"><code>                   Asteroid
                       •
 
@@ -242,12 +183,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <h3>Interpretation</h3>
 <p>If</p>
 <p><span class="math display">\[
-\texttt{asteroid\_along\_velocity} &gt; 0
+\texttt{asteroid_along_velocity} &gt; 0
 \]</span></p>
 <p>the asteroid lies somewhere ahead.</p>
 <p>If</p>
 <p><span class="math display">\[
-\texttt{asteroid\_along\_velocity} &lt; 0
+\texttt{asteroid_along_velocity} &lt; 0
 \]</span></p>
 <p>the asteroid lies behind Peach.</p>
 <hr />
@@ -256,7 +197,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 </section>
 <section id="step-4-find-the-closest-point-on-peachs-path"
 class="level1">
-<h1>Step 4: Find the Closest Point on Peach’s Path</h1>
+<h1>4. Find the Closest Point on Peach’s Path</h1>
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>closest_point <span class="op">=</span> (</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    peach_position</span>
@@ -294,7 +235,7 @@ path.</p>
 </section>
 </section>
 <section id="step-5-compute-the-cross-track-distance" class="level1">
-<h1>Step 5: Compute the Cross-Track Distance</h1>
+<h1>5. Compute the Cross-Track Distance</h1>
 <div class="sourceCode" id="cb11"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cross_track_distance <span class="op">=</span> (</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    asteroid_position <span class="op">-</span> closest_point</span>
@@ -335,7 +276,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 </section>
 <section id="step-6-determine-whether-the-asteroid-blocks-the-path"
 class="level1">
-<h1>Step 6: Determine Whether the Asteroid Blocks the Path</h1>
+<h1>6. Determine Whether the Asteroid Blocks the Path</h1>
 <div class="sourceCode" id="cb14"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>asteroid_on_velocity_path <span class="op">=</span> (</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    asteroid_along_velocity <span class="op">&gt;</span> <span class="dv">0</span></span>
@@ -347,16 +288,16 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <section id="is-the-asteroid-in-front" class="level3">
 <h3>1. Is the asteroid in front?</h3>
 <p><span class="math display">\[
-\texttt{asteroid\_along\_velocity} &gt; 0
+\texttt{asteroid_along_velocity} &gt; 0
 \]</span></p>
 </section>
 <section id="does-peachs-path-intersect-the-asteroids-safety-circle"
 class="level3">
 <h3>2. Does Peach’s path intersect the asteroid’s safety circle?</h3>
 <p><span class="math display">\[
-\texttt{cross\_track\_distance}
+\texttt{cross_track_distance}
 &lt;
-\texttt{effective\_radius}
+\texttt{effective_radius}
 \]</span></p>
 <hr />
 </section>
@@ -373,23 +314,21 @@ margin.</p>
 <p>Now extend Peach’s velocity vector.</p>
 <section id="collision" class="level3">
 <h3>Collision</h3>
-<pre class="text"><code>***************
-      •
-***************
-
-Peach ------------------&gt;</code></pre>
+<pre class="text"><code>             ***************
+Peach -------------&gt;•--------------------&gt;
+             ***************</code></pre>
 <p>The path intersects the safety region.</p>
 <p>Result:</p>
 <pre class="text"><code>True</code></pre>
 </section>
 <section id="no-collision" class="level3">
 <h3>No Collision</h3>
-<pre class="text"><code>***************
-      •
-***************
+<pre class="text"><code>             ***************
+                   •
+             ***************
 
 
-Peach ------------------------------&gt;</code></pre>
+Peach -----------------------------------&gt;</code></pre>
 <p>The path misses the safety region.</p>
 <p>Result:</p>
 <pre class="text"><code>False</code></pre>
